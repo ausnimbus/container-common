@@ -1,0 +1,17 @@
+#!/bin/bash -e
+
+parse_template() {
+  sed -e "s;%NAME%;$NAME;g" -e "s;%VERSION%;$version;g" -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" $1
+}
+
+pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
+cd ..
+for version in ${VERSIONS//,/ }
+do
+  parse_template templates/pre-$VARIANT.template > ../versions/$version/Dockerfile
+  parse_template ../Dockerfile.template >> ../versions/$version/Dockerfile
+  parse_template templates/post-$VARIANT.template >> ../versions/$version/Dockerfile
+done
+popd >/dev/null
+
+echo "Parsed all Dockerfiles"
