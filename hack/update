@@ -8,7 +8,13 @@ pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
 cd ..
 for version in ${VERSIONS//,/ }
 do
-  parse_template templates/pre-$VARIANT.template > ../versions/$version/Dockerfile
+  echo '#
+# NOTE: THIS DOCKERFILE IS GENERATED VIA "./hack/update"
+#
+# DO NOT EDIT IT DIRECTLY.
+#
+  ' > ../versions/$version/Dockerfile
+  parse_template templates/pre-$VARIANT.template >> ../versions/$version/Dockerfile
   parse_template ../Dockerfile.template >> ../versions/$version/Dockerfile
   parse_template templates/post-$VARIANT.template >> ../versions/$version/Dockerfile
 done
