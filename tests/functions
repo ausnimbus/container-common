@@ -1,9 +1,5 @@
 #!/bin/bash
 
-
-# TODO: This should be part of the image metadata
-test_port=8080
-
 info() {
   echo -e "\n\e[1m[INFO] $@\e[0m\n"
 }
@@ -18,6 +14,11 @@ container_exists() {
 
 container_ip() {
   docker inspect --format="{{ .NetworkSettings.IPAddress }}" $(cat $cid_file)
+}
+
+container_port() {
+  # Expects format 8080:http
+  docker inspect --format "{{index .Config.Labels \"io.openshift.expose-services\"}}" $(cat $cid_file) | cut -d: -f1
 }
 
 container_logs() {
@@ -98,12 +99,12 @@ test_docker_run_usage() {
   docker run ${IMAGE_NAME} &>/dev/null
 }
 
-test_scl_usage() {
+test_image_version() {
   local run_cmd="$1"
   local expected="$2"
   local cid_file="$3"
 
-  info "Testing the image SCL enable"
+  info "Testing the image version"
   out=$(docker run --rm ${IMAGE_NAME} /bin/bash -c "${run_cmd}" 2>&1)
   if ! echo "${out}" | grep -q "${expected}"; then
     echo "ERROR[/bin/bash -c "${run_cmd}"] Expected '${expected}', got '${out}'"
@@ -122,13 +123,13 @@ test_scl_usage() {
 }
 
 test_connection() {
-  info "Testing the HTTP connection (http://$(container_ip):${test_port}) ${CONTAINER_ARGS} ..."
+  info "Testing the HTTP connection (http://$(container_ip):$(container_port)) ${CONTAINER_ARGS} ..."
   local max_attempts=30
   local sleep_time=1
   local attempt=1
   local result=1
   while [ $attempt -le $max_attempts ]; do
-    response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):${test_port}/)
+    response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):$(container_port)/)
     status=$?
     if [ $status -eq 0 ]; then
       if [ $response_code -eq 200 ]; then
@@ -150,7 +151,7 @@ test_application() {
   # Wait for the container to write it's CID file
   wait_for_cid
 
-  test_scl_usage "${version_command}" "${version_output}" "${cid_file}"
+  test_image_version "${version_command}" "${version_output}" "${cid_file}"
   check_result $?
   test_connection
   check_result $?
