@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # This runs the standard tests for all our S2I images
 # The following ENV variables are expected to be included:
