@@ -155,6 +155,12 @@ test_connection() {
   return $result
 }
 
+test_ab() {
+  info "Running Apache Benchmark (http://$(container_ip):$(container_port)) ${CONTAINER_ARGS} ..."
+  local ab_params="-k -n 1000 -c 16"
+  docker run quay.io/ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/
+}
+
 test_application() {
   local cid_file=$(mktemp -u --suffix=.cid)
   # Verify that the HTTP connection can be established to test application container
@@ -166,6 +172,8 @@ test_application() {
   test_image_version "${VERSION_COMMAND}" "${VERSION}" "${cid_file}"
   check_result $?
   test_connection
+  check_result $?
+  test_ab
   check_result $?
   cleanup_app
 }
