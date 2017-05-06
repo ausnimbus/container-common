@@ -8,11 +8,18 @@
 #   - $VERSIONS (comma seperated versions to generate)
 #   - $TEMPLATES (comma seperated templates - in order)
 #   - $VARIANT (eg. alpine)
+#   - $TAG (overwrides the variant field eg. fpm-alpine, defaults to $VARIANT)
 #
+
+TAG="${TAG:-$VARIANT}"
 
 parse_template() {
   echo -e "# <$template>\n"
-  sed -e "s;%NAME%;$NAME;g" -e "s;%VERSION%;$version;g" -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" $1
+  sed -e "s;%NAME%;$NAME;g" \
+      -e "s;%VERSION%;$version;g" \
+      -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
+      -e "s;%TAG%;$TAG;g" \
+      $1
   echo -e "\n# </$template>"
 }
 
