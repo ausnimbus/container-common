@@ -157,8 +157,16 @@ test_connection() {
 
 test_ab() {
   info "Running Apache Benchmark (http://$(container_ip):$(container_port)) ${CONTAINER_ARGS} ..."
-  local ab_params="-k -n 1000 -c 16 -l"
-  docker run quay.io/ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/
+  local ab_requests="1000"
+  local ab_params="-k -n ${ab_requests} -c 16 -l"
+
+  out=$(docker run --rm quay.io/ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/)
+  echo -e $out
+
+  if ! echo "${out}" | grep "Complete requests:" | grep -q $ab_requests; then
+    echo "ERROR Expected: 'Complete requests: ${ab_requests}'"
+    return 1
+  fi
 }
 
 test_application() {
