@@ -60,7 +60,7 @@ prepare() {
 
 run_test_application() {
   CONTAINER_ARGS=${CONTAINER_ARGS:-'--user=100001'}
-  docker run ${CONTAINER_ARGS} --rm --cidfile=${cid_file} ${IMAGE_NAME}-testapp
+  docker run ${CONTAINER_ARGS} --rm --cidfile=${cid_file} ${IMAGE_NAME}-testapp &>/dev/null
 }
 
 cleanup_app() {
@@ -69,6 +69,7 @@ cleanup_app() {
     if container_exists; then
       docker stop $(cat $cid_file)
     fi
+    rm $cid_file
   fi
 }
 
@@ -84,7 +85,8 @@ check_result() {
   local result="$1"
   if [[ "$result" != "0" ]]; then
     info "TEST FAILED (${result})"
-    cleanup
+    cleanup_app
+    cleanup ${app}
     exit $result
   fi
 }
@@ -109,7 +111,7 @@ test_s2i_usage() {
 
 test_docker_run_usage() {
   info "Testing 'docker run' usage ..."
-  docker run ${IMAGE_NAME} &>/dev/null
+  docker run --rm ${IMAGE_NAME} &>/dev/null
 }
 
 test_image_version() {
@@ -158,16 +160,14 @@ test_connection() {
 
 test_ab() {
   info "Running Apache Benchmark (http://$(container_ip):$(container_port)) ${CONTAINER_ARGS} ..."
-  local ab_requests="1000"
-  local ab_params="-k -n ${ab_requests} -c 16 -l"
+
+  local ab_requests="1500"
+  local ab_params="-k -n ${ab_requests} -c 32 -l"
 
   out=$(docker run --rm quay.io/ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/)
-  echo -e $out
+  echo $out
 
-  if ! echo "${out}" | grep "Complete requests:" | grep -q $ab_requests; then
-    echo "ERROR Expected: 'Complete requests: ${ab_requests}'"
-    return 1
-  fi
+  return $(echo $out | grep "Complete requests:" | grep -q $ab_requests)
 }
 
 test_application() {
@@ -180,13 +180,15 @@ test_application() {
 
   test_image_version "${VERSION_COMMAND}" "${VERSION}" "${cid_file}"
   check_result $?
+
   test_connection
   check_result $?
+
   test_ab
   check_result $?
+
   cleanup_app
 }
-
 
 # Verify the 'usage' script is working properly when running the base image with 's2i usage ...'
 test_s2i_usage
