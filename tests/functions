@@ -59,7 +59,8 @@ prepare() {
 }
 
 run_test_application() {
-  docker run --user=100001 ${CONTAINER_ARGS} --rm --cidfile=${cid_file} ${IMAGE_NAME}-testapp
+  CONTAINER_ARGS=${CONTAINER_ARGS:-'--user=100001'}
+  docker run ${CONTAINER_ARGS} --rm --cidfile=${cid_file} ${IMAGE_NAME}-testapp
 }
 
 cleanup_app() {
@@ -211,7 +212,7 @@ for app in ${TEST_APPS[@]}; do
   CONTAINER_ARGS="-u 12345" test_application
 
   info "Test with resource limits (512MB memory and 0.5 CPU)"
-  CONTAINER_ARGS="--memory=512M --memory-swap=0 --cpus=0.5" test_application
+  CONTAINER_ARGS="--memory=512M --memory-swap=0 --cpu-period=100000 --cpu-quota=50000" test_application
 
   # Build the application image twice to ensure the 'save-artifacts' and
   # 'restore-artifacts' scripts are working properly
