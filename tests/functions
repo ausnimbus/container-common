@@ -210,6 +210,9 @@ for app in ${TEST_APPS[@]}; do
   info "Test with random user"
   CONTAINER_ARGS="-u 12345" test_application
 
+  info "Test with resource limits (512MB memory and 0.5 CPU)"
+  CONTAINER_ARGS="--memory=512M --memory-swap=0 --cpus=0.5" test_application
+
   # Build the application image twice to ensure the 'save-artifacts' and
   # 'restore-artifacts' scripts are working properly
   info "Test incremental builds (build #1)"
