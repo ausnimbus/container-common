@@ -212,9 +212,10 @@ for app in ${TEST_APPS[@]}; do
 
   # Build the application image twice to ensure the 'save-artifacts' and
   # 'restore-artifacts' scripts are working properly
-  info "Test incremental builds"
+  info "Test incremental builds (build #1)"
   S2I_ARGS="--incremental" run_s2i_build ${app}
   check_result $?
+  info "Test incremental builds (build #2)"
   S2I_ARGS="--incremental" run_s2i_build ${app}
   check_result $?
   test_application
