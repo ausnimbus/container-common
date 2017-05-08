@@ -56,6 +56,11 @@ for version in ${VERSIONS//,/ }; do
         parse_template templates/s2i-$VARIANT.template >> $file
       ;;
 
+      # Component template
+      component)
+        parse_template templates/component-$VARIANT.template >> $file
+      ;;
+
     esac
   done
 

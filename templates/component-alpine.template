@@ -1,0 +1,2 @@
+# Copy the component scripts
+COPY ./component/bin/ /usr/bin/

@@ -1,0 +1,147 @@
+#!/bin/bash -e
+#
+# This runs the standard tests for all our S2I images
+# The following ENV variables are expected to be included:
+#
+#   - IMAGE_NAME
+#   - VERSION
+#   - S2I_ARGS
+#   - TEST_APPS
+#   - VERSION_COMMAND
+#   - EXTRA_TESTS (optional)
+#
+#   - test_dir
+#
+
+source $(readlink -zf $(dirname "${BASH_SOURCE[0]}"))/functions
+
+
+run_s2i_build() {
+  info "Building the ${1} application image..."
+  s2i build ${S2I_ARGS} file://${test_dir}/${1} ${IMAGE_NAME} ${IMAGE_NAME}-testapp
+}
+
+prepare_app() {
+  if ! image_exists ${IMAGE_NAME}; then
+    echo "ERROR: The image ${IMAGE_NAME} must exist before this script is executed."
+    exit 1
+  fi
+  # TODO: S2I build require the application is a valid 'GIT' repository, we
+  # should remove this restriction in the future when a file:// is used.
+  info "Preparing to test ${1} ..."
+  pushd ${test_dir}/${1} >/dev/null
+  git init
+  git config user.email "build@localhost" && git config user.name "builder"
+  git add -A && git commit -m "Sample commit"
+  popd >/dev/null
+}
+
+run_test_app() {
+  CONTAINER_ARGS=${CONTAINER_ARGS:-'--user=100001'}
+  docker run ${CONTAINER_ARGS} --rm --cidfile=${cid_file} ${IMAGE_NAME}-testapp &>/dev/null
+}
+
+test_s2i_usage() {
+  info "Testing 's2i usage' ..."
+  s2i usage ${S2I_ARGS} ${IMAGE_NAME} &>/dev/null
+}
+
+test_docker_run_usage() {
+  info "Testing 'docker run' usage ..."
+  docker run --rm ${IMAGE_NAME} &>/dev/null
+}
+
+test_connection() {
+  info "Testing the HTTP connection (http://$(container_ip):$(container_port)) ${CONTAINER_ARGS} ..."
+  local max_attempts=30
+  local sleep_time=1
+  local attempt=1
+  local result=1
+  while [ $attempt -le $max_attempts ]; do
+    response_code=$(curl -s -w %{http_code} -o /dev/null http://$(container_ip):$(container_port)/)
+    status=$?
+    if [ $status -eq 0 ]; then
+      if [ $response_code -eq 200 ]; then
+        result=0
+      fi
+      break
+    fi
+    attempt=$(( $attempt + 1 ))
+    sleep $sleep_time
+  done
+  return $result
+}
+
+test_ab() {
+  info "Running Apache Benchmark (http://$(container_ip):$(container_port)) ${CONTAINER_ARGS} ..."
+
+  local ab_requests="1500"
+  local ab_params="-k -n ${ab_requests} -c 32 -l"
+
+  out=$(docker run --rm quay.io/ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/)
+  echo $out
+
+  return $(echo $out | grep "Complete requests:" | grep -q $ab_requests)
+}
+
+test_application() {
+  local cid_file=$(mktemp -u --suffix=.cid)
+  # Verify that the HTTP connection can be established to test application container
+  run_test_app &
+
+  # Wait for the container to write it's CID file
+  wait_for_cid
+
+  test_image_version "${VERSION_COMMAND}" "${VERSION}" "${cid_file}"
+  check_result $?
+
+  test_connection
+  check_result $?
+
+  test_ab
+  check_result $?
+
+  cleanup_container
+}
+
+# Verify the 'usage' script is working properly when running the base image with 's2i usage ...'
+test_s2i_usage
+check_result $?
+
+# Verify the 'usage' script is working properly when running the base image with 'docker run ...'
+test_docker_run_usage
+
+for app in ${TEST_APPS[@]}; do
+  prepare_app ${app}
+  run_s2i_build ${app}
+  check_result $?
+
+  # test application with default user
+  test_application
+
+  # Extra tests
+  if [ -n "$EXTRA_TESTS" ]; then
+    eval $EXTRA_TESTS
+  fi
+
+  info "Test with random user"
+  CONTAINER_ARGS="-u 12345" test_application
+
+  info "Test with resource limits (512MB memory and 0.5 CPU)"
+  CONTAINER_ARGS="--memory=512M --memory-swap=0 --cpu-period=100000 --cpu-quota=50000" test_application
+
+  # Build the application image twice to ensure the 'save-artifacts' and
+  # 'restore-artifacts' scripts are working properly
+  info "Test incremental builds (build #1)"
+  S2I_ARGS="--incremental" run_s2i_build ${app}
+  check_result $?
+  info "Test incremental builds (build #2)"
+  S2I_ARGS="--incremental" run_s2i_build ${app}
+  check_result $?
+  test_application
+
+  info "All tests for the ${app} finished successfully."
+  cleanup_app ${app}
+done
+
+info "All tests finished successfully."
