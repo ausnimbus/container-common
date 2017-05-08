@@ -9,4 +9,8 @@ LABEL io.openshift.expose-services="8080:http" \
 # Copy the S2I scripts from the specific language image to $STI_SCRIPTS_PATH
 COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 
+# Directory with the sources is set as the working directory so all S2I scripts
+# can execute relative to this path.
+WORKDIR ${HOME}
+
 CMD /usr/bin/base-usage

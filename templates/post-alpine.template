@@ -1,7 +1,3 @@
-# Directory with the sources is set as the working directory so all STI scripts
-# can execute relative to this path.
-WORKDIR ${HOME}
-
 # Drop the root user and make the content of /opt/app-root owned by user 1001
 RUN chown -R 1001:0 /opt/app-root && chmod -R ug+rwx /opt/app-root
 USER 1001
