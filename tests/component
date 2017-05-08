@@ -33,10 +33,10 @@ test_component() {
   check_result $?
 
   # Extra tests
-  if [ -n "$EXTRA_TESTS" ]; then
-    eval $EXTRA_TESTS
+  if [ -n "$(type extra_tests)" ]; then
+    extra_tests
   fi
-  
+
   cleanup_container
 }
 

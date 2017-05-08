@@ -25,6 +25,9 @@ container_logs() {
   docker logs $(cat $cid_file)
 }
 
+container_exec() {
+  docker exec $(cat ${cid_file}) $1
+}
 
 cleanup_container() {
   info "Cleaning up app container ..."
@@ -75,14 +78,9 @@ test_image_version() {
   local cid_file="$3"
 
   info "Testing the image version"
-  out=$(docker exec $(cat ${cid_file}) /bin/bash -c "${run_cmd}" 2>&1)
-  if ! echo "${out}" | grep -q "${expected}"; then
-    info "ERROR[exec /bin/bash -c "${run_cmd}"] Expected '${expected}', got '${out}'"
-    return 1
-  fi
-  out=$(docker exec $(cat ${cid_file}) /bin/sh -ic "${run_cmd}" 2>&1)
-  if ! echo "${out}" | grep -q "${expected}"; then
-    info "ERROR[exec /bin/sh -ic "${run_cmd}"] Expected '${expected}', got '${out}'"
+  out=$(container_exec "$run_cmd")
+  if ! echo $out | grep -q "${expected}"; then
+    info "ERROR[exec "${run_cmd}"] Expected '${expected}', got '${out}'"
     return 1
   fi
 }
