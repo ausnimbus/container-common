@@ -92,7 +92,8 @@ test_application() {
   # Wait for the container to write it's CID file
   wait_for_cid
 
-  test_image_version "${VERSION_COMMAND}" "${VERSION}" "${cid_file}"
+  info "Testing container version"
+  test_container_command "${VERSION_COMMAND}" "${VERSION}"
   check_result $?
 
   test_connection
@@ -101,7 +102,12 @@ test_application() {
   test_ab
   check_result $?
 
-  cleanup_container
+  # Extra tests
+  if [ -n "$(type extra_tests)" ]; then
+    extra_tests
+  fi
+
+  container_cleanup
 }
 
 # Verify the 'usage' script is working properly when running the base image with 's2i usage ...'
@@ -119,15 +125,10 @@ for app in ${TEST_APPS[@]}; do
   # test application with default user
   test_application
 
-  # Extra tests
-  if [ -n "$(type extra_tests)" ]; then
-    extra_tests
-  fi
-
-  info "Test with random user"
+  info "Testing with random user..."
   CONTAINER_ARGS="-u 12345" test_application
 
-  info "Test with resource limits (512MB memory and 0.5 CPU)"
+  info "Test with resource limits (512MB memory and 0.5 CPU)..."
   CONTAINER_ARGS="--memory=512M --memory-swap=0 --cpu-period=100000 --cpu-quota=50000" test_application
 
   # Build the application image twice to ensure the 'save-artifacts' and
