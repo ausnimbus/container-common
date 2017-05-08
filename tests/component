@@ -32,6 +32,11 @@ test_component() {
   test_port
   check_result $?
 
+  # Extra tests
+  if [ -n "$EXTRA_TESTS" ]; then
+    eval $EXTRA_TESTS
+  fi
+  
   cleanup_container
 }
 
