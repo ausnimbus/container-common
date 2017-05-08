@@ -14,6 +14,8 @@
 #         Maximum amount of user memory in bytes. If this value is empty,
 #         it means that there is no limit set. The value is taken from
 #         /sys/fs/cgroup/memory/memory.limit_in_bytes
+#
+#         Default: 9223372036854771712 (arbitary high value)
 #     NUMBER_OF_CORES
 #         Number of detected CPU cores that can be used. This value is
 #         calculated from /sys/fs/cgroup/cpuset/cpuset.cpus
@@ -25,7 +27,7 @@
 if [ -f /sys/fs/cgroup/memory/memory.limit_in_bytes ]; then
   export MEMORY_LIMIT_IN_BYTES=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
 else
-  export MEMORY_LIMIT_IN_BYTES=''
+  export MEMORY_LIMIT_IN_BYTES='9223372036854771712'
 fi
 
 if [ -f /sys/fs/cgroup/cpuset/cpuset.cpus ]; then
