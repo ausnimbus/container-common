@@ -28,10 +28,8 @@ test_component() {
 
   info "Testing container version"
   test_container_command "${VERSION_COMMAND}" "${VERSION}"
-  check_result $?
 
   test_port
-  check_result $?
 
   # Extra tests
   if [ -n "$(type extra_tests)" ]; then
