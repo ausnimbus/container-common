@@ -36,23 +36,19 @@ container_cleanup() {
   set +e
   if [ -f $cid_file ]; then
     if container_exists $(cat $cid_file); then
-      local CONTAINER
       CONTAINER=$(cat $cid_file)
 
-      info "Stopping and removing container $CONTAINER..."
+      info "Stopping container $CONTAINER..."
       docker stop $(cat $cid_file)
 
-      local exit_status
-      exit_status=$(docker inspect -f '{{.State.ExitCode}}' $CONTAINER)
-
-      if [ "$exit_status" != "0" ]; then
+      if [ $(docker inspect -f '{{.State.ExitCode}}' $CONTAINER) != "0" ]; then
         info "Inspecting container $CONTAINER"
         container_inspect $CONTAINER
 
         info "Dumping logs for $CONTAINER"
         docker logs $CONTAINER
       fi
-      docker rm -v $CONTAINER >/dev/null
+      docker rm -v $CONTAINER &>/dev/null
     else
       info "Nothing to clean up $CONTAINER"
     fi

@@ -6,7 +6,7 @@ source $(readlink -zf $(dirname "${BASH_SOURCE[0]}"))/functions
 
 run_docker_app() {
   CONTAINER_ARGS=${CONTAINER_ARGS:-'--user=100001'}
-  docker run ${CONTAINER_ARGS} --rm --cidfile=${cid_file} ${IMAGE_NAME} &>/dev/null
+  docker run ${CONTAINER_ARGS} --cidfile=${cid_file} ${IMAGE_NAME} &>/dev/null
 }
 
 test_port() {
