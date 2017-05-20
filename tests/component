@@ -36,7 +36,7 @@ test_port() {
 }
 
 test_component() {
-  local cid_file=$(mktemp -u --suffix=.cid)
+  local cid_file=$(mktemp -p $CIDFILE_DIR -u --suffix=.cid)
   run_docker_app &
 
   # Wait for the container to write it's CID file
