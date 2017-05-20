@@ -12,11 +12,27 @@ run_docker_app() {
 test_port() {
   info "Checking the container port $(container_ip) $(container_port) is open.."
   if hash nc 2>/dev/null; then
-      return $(nc -z $(container_ip) $(container_port))
+    set +e
+    local max_attempts=30
+    local sleep_time=1
+    local attempt=1
+    local result=1
+    while [ $attempt -le $max_attempts ]; do
+      nc -z $(container_ip) $(container_port)
+      if [ $? -eq 0 ]; then
+        result=0
+        break
+      fi
+      attempt=$(( $attempt + 1 ))
+      sleep $sleep_time
+    done
+    set -e
   else
-    info "WARNING: nc command not available on test host"
-    return 0
+    info "ERROR: nc command not available on test host"
+    return 1
   fi
+
+  return $result
 }
 
 test_component() {

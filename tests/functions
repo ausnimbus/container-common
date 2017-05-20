@@ -16,20 +16,21 @@ function cleanup() {
   done
   rmdir $CIDFILE_DIR
 
-  if [ -n $app ]; then
+  if [[ -n $app ]]; then
     cleanup_app ${app}
   fi
 
   # Report whole test result
-  if [ "$test_exit" -eq 0 ] ; then
+  if [ "$1" -eq 0 ] ; then
     info "All tests finished successfully."
   else
-    info "Tests failed."
+    info "ERROR: Function $2 failed in $3 on line $4"
+    info "ERROR: Tests failed."
   fi
 
   exit $test_exit
 }
-trap cleanup EXIT SIGINT
+trap 'cleanup $? $FUNCNAME $BASH_SOURCE $BASH_LINENO' EXIT SIGINT
 
 container_cleanup() {
   set +e
