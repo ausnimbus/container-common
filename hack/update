@@ -6,22 +6,12 @@
 # The following ENV variables are expected to be included:
 #
 #   - $VERSIONS (comma seperated versions to generate)
+#   - $FROM (overwrides the FROM layout defaults to %NAME%:%VERSION%-%VARIANT%)
 #   - $TEMPLATES (comma seperated templates - in order)
 #   - $VARIANT (eg. alpine)
-#   - $TAG (overwrides the variant field eg. fpm-alpine, defaults to $VARIANT)
 #
 
-TAG="${TAG:-$VARIANT}"
-
-parse_template() {
-  echo -e "# <$template>\n"
-  sed -e "s;%NAME%;$NAME;g" \
-      -e "s;%VERSION%;$version;g" \
-      -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
-      -e "s;%TAG%;$TAG;g" \
-      $1
-  echo -e "\n# </$template>"
-}
+FROM=${FROM:-"%NAME%:%VERSION%-%VARIANT%"}
 
 pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
 cd ..
@@ -31,39 +21,23 @@ for version in ${VERSIONS//,/ }; do
   file=../versions/$version/Dockerfile
 
   echo -e '#\n# NOTE: THIS DOCKERFILE IS GENERATED VIA "./hack/run update"\n#\n# DO NOT EDIT IT DIRECTLY.\n#' > $file
+  echo -e "FROM $FROM" >> $file
 
   # Loop through the templates
   for template in ${TEMPLATES//,/ }; do
-
-    case $template in
-      # Pre template
-      pre)
-        parse_template templates/pre-$VARIANT.template >> $file
-      ;;
-
-      # Post template
-      post)
-        parse_template templates/post-$VARIANT.template >> $file
-      ;;
-
-      # Container specific template
-      template)
-        parse_template ../Dockerfile.template >> $file
-      ;;
-
-      # S2I template
-      s2i)
-        parse_template templates/s2i-$VARIANT.template >> $file
-      ;;
-
-      # Component template
-      component)
-        parse_template templates/component-$VARIANT.template >> $file
-      ;;
-
-    esac
+    echo -e "# <$template>\n" >> $file
+    if [ $template == 'template' ]; then
+      cat ../Dockerfile.template >> $file
+    else
+      cat templates/$template-$VARIANT.template >> $file
+    fi
+    echo -e "\n# </$template>" >> $file
   done
 
+  sed -e "s;%NAME%;$NAME;g" \
+      -e "s;%VERSION%;$version;g" \
+      -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
+      -i $file
 done
 popd >/dev/null
 

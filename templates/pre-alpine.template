@@ -1,4 +1,3 @@
-FROM %NAME%:%VERSION%-%TAG%
 MAINTAINER AusNimbus <support@ausnimbus.com.au>
 
 LABEL summary="Platform for running %DISPLAY_NAME% %VERSION% applications" \
