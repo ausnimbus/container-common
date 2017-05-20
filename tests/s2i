@@ -142,5 +142,3 @@ for app in ${TEST_APPS[@]}; do
   info "All tests for the ${app} finished successfully."
   cleanup_app ${app}
 done
-
-test_exit=0

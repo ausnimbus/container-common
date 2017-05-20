@@ -63,5 +63,3 @@ CONTAINER_ARGS="-u 12345" test_component
 
 info "Testing with resource limits (512MB memory and 0.5 CPU)"
 CONTAINER_ARGS="--memory=512M --memory-swap=0 --cpu-period=100000 --cpu-quota=50000" test_component
-
-test_exit=0
