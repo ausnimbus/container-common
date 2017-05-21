@@ -1,4 +1,4 @@
-EXPOSE 8080
+RUN apk --no-cache add git && rm -rf /var/cache/apk/*
 
 ENV STI_SCRIPTS_PATH=/usr/libexec/s2i
 
@@ -13,4 +13,5 @@ COPY ./s2i/bin/ $STI_SCRIPTS_PATH
 # can execute relative to this path.
 WORKDIR ${HOME}
 
+EXPOSE 8080
 CMD /usr/bin/base-usage

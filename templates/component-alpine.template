@@ -1,2 +1,4 @@
+RUN apk --no-cache add shadow && rm -rf /var/cache/apk/*
+
 # Copy the component scripts (override existing container-entrypoint)
 COPY ./component/bin/ /usr/bin/
