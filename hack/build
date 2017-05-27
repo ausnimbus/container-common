@@ -12,7 +12,7 @@ pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
 cd ..
 for version in ${VERSIONS//,/ }
 do
-  image=$REPO:$version
+  image=ausnimbus/$REPO:$version
 
   docker build -t $image ../ -f ../versions/$version/Dockerfile
   #docker-squash -t $image $image
@@ -25,7 +25,7 @@ do
 done
 
 if [ $DOCKER_PUSH == "true" ]; then
-  docker tag $image quay.io/$REPO:latest
-  docker push quay.io/$REPO:latest
+  docker tag $image quay.io/ausnimbus/$REPO:latest
+  docker push quay.io/ausnimbus/$REPO:latest
 fi
 popd >/dev/null
