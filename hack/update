@@ -7,10 +7,9 @@
 #
 #   - $VERSIONS (comma seperated versions to generate)
 #   - $FROM (overwrides the FROM layout defaults to %NAME%:%VERSION%-%VARIANT%)
-#   - $TEMPLATES (defaults to pre,$TYPE,template,post)
 #   - $TYPE (s2i or component)
 #   - $VARIANT (eg. alpine)
-#   - $REPO (eg. s2i-nodejs)
+#   - $REPO (eg. redis-component defaults to $TYPE-$NAME)
 #
 
 FROM=${FROM:-"%NAME%:%VERSION%-%VARIANT%"}

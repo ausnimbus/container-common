@@ -1,16 +1,14 @@
 #!/bin/bash -e
-#
-# This builds (docker build) and test the Docker images
-# for various containers used within AusNimbus
-#
-# The following ENV variables are expected to be included:
-#
-#   - $VERSIONS (comma seperated versions to generate)
-#   - $DOCKER_PUSH (true/false whether the image should be pushed to quay.io)
 
 if [ $# -ne 1 ]; then
     echo "Usage: ./hack/run [build,update]"
     exit
+fi
+
+if [ "$TYPE" == "component" ]; then
+  REPO="$NAME-$TYPE"
+else
+  REPO="$TYPE-$NAME"
 fi
 
 if [ "$1" == "build" ]; then
