@@ -6,9 +6,9 @@ if [ $# -ne 1 ]; then
 fi
 
 if [ "$TYPE" == "component" ]; then
-  REPO="$NAME-$TYPE"
+  REPO=${REPO:-"$NAME-$TYPE"}
 else
-  REPO="$TYPE-$NAME"
+  REPO=${REPO:-"$TYPE-$NAME"}
 fi
 
 if [ "$1" == "build" ]; then
