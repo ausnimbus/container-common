@@ -60,6 +60,7 @@ container_cleanup() {
 }
 
 cleanup_app () {
+  set +e
   info "Cleaning up the test application image"
   if container_inspect ${IMAGE_NAME}-testapp; then
     docker rmi -f ${IMAGE_NAME}-testapp
@@ -67,6 +68,7 @@ cleanup_app () {
   if [ -f ${test_dir}/${1}/.git ]; then
     rm -rf ${test_dir}/${1}/.git
   fi
+  set -e
 }
 
 wait_for_cid() {
