@@ -18,7 +18,7 @@ source $(readlink -zf $(dirname "${BASH_SOURCE[0]}"))/functions
 
 run_s2i_build() {
   info "Building the ${1} application image..."
-  s2i build ${S2I_ARGS} file://${test_dir}/${1} ${IMAGE_NAME} ${IMAGE_NAME}-testapp
+  s2i build --rm ${S2I_ARGS} file://${test_dir}/${1} ${IMAGE_NAME} ${IMAGE_NAME}-testapp
 }
 
 prepare_app() {
