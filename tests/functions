@@ -6,7 +6,6 @@ shopt -s nullglob
 [ "${DEBUG:-0}" -eq 1 ] && set -x
 
 CIDFILE_DIR=$(mktemp --suffix=test_cid_files -d)
-test_exit=1
 
 function cleanup() {
   info "Tests finished.. cleaning up.."
@@ -28,7 +27,7 @@ function cleanup() {
     info "ERROR: Tests failed."
   fi
 
-  exit $test_exit
+  return $1
 }
 trap 'cleanup $? $FUNCNAME $BASH_SOURCE $BASH_LINENO' EXIT SIGINT
 
