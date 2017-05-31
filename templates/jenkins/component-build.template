@@ -52,7 +52,7 @@ openshift.withCluster() {
                                         "output" : [
                                                 "to" : [
                                                         "kind" : "ImageStreamTag",
-                                                        "name" : "%REPO%:%VERSION%"
+                                                        "name" : "%REPO%:%VERSION%%VARIANT%"
                                                 ]
                                         ],
                                         "runPolicy" : "Serial",
