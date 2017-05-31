@@ -50,12 +50,14 @@ done
 # Jenkinsfile template
 jenkins_build=$(awk '{printf "%s\\n", $0}' templates/jenkins/$TYPE-build.template)
 jenkins_test=$(awk '{printf "%s\\n", $0}' templates/jenkins/$TYPE-test.template)
+jenkins_stage=$(awk '{printf "%s\\n", $0}' templates/jenkins/$TYPE-stage.template)
 echo -e '/**\n* NOTE: THIS JENKINSFILE IS GENERATED VIA "./hack/run update"\n*\n* DO NOT EDIT IT DIRECTLY.\n*/' > ../Jenkinsfile
 cat templates/jenkins/Jenkinsfile.template >> ../Jenkinsfile
 
 # ${version[i]} is an internal Jenkinsfile loop
 sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s|%TEST%|${jenkins_test}|g" \
+    -e "s|%STAGE%|${jenkins_stage}|g" \
     -e "s;%FROM%;$FROM;g" \
     -e "s;%NAME%;$NAME;g" \
     -e "s;%VERSIONS%;$VERSIONS;g" \

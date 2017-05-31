@@ -8,6 +8,9 @@ node {
                         stage("Test (%DISPLAY_NAME% ${versions[i]})") {
                                 %TEST%
                         }
+                        stage("Stage (%DISPLAY_NAME% ${versions[i]})") {
+                                %STAGE%
+                        }
                 } finally {
                         openshift.withCluster() {
                                 echo "Deleting test resources %NAME%-ex"
