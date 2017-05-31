@@ -14,7 +14,7 @@ openshift.withCluster() {
                                                 "spec" : [
                                                         "tags" : [
                                                                 [
-                                                                        "name" : "%VERSION%-%VARIANT%",
+                                                                        "name" : "%VERSION%%VARIANT%",
                                                                         "from" : [
                                                                                 "kind" : "DockerImage",
                                                                                 "name" : "%FROM%",
@@ -72,7 +72,7 @@ openshift.withCluster() {
                                                         "dockerfilePath" : "versions/%VERSION%/Dockerfile",
                                                         "from" : [
                                                                 "kind" : "ImageStreamTag",
-                                                                "name" : "%NAME%:%VERSION%-%VARIANT%"
+                                                                "name" : "%NAME%:%VERSION%%VARIANT%"
                                                         ]
                                                 ],
                                                 "type" : "Docker"
@@ -82,7 +82,7 @@ openshift.withCluster() {
         echo "Created %REPO%:%VERSION% objects"
         /**
         * TODO: Replace the sleep with import-image
-        * openshift.importImage("%NAME%:%VERSION%-%VARIANT%")
+        * openshift.importImage("%NAME%:%VERSION%%VARIANT%")
         */
         sleep 60
 

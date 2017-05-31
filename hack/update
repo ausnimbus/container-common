@@ -6,13 +6,21 @@
 # The following ENV variables are expected to be included:
 #
 #   - $VERSIONS (comma seperated versions to generate)
-#   - $FROM (overwrides the FROM layout defaults to %NAME%:%VERSION%-%VARIANT%)
+#   - $FROM (overwrides the FROM layout defaults to %NAME%:%VERSION%%VARIANT%)
 #   - $TYPE (s2i or component)
-#   - $VARIANT (eg. alpine)
+#   - $VARIANT (eg. -alpine or "")
 #   - $REPO (eg. redis-component defaults to $TYPE-$NAME)
 #
 
-FROM=${FROM:-"%NAME%:%VERSION%-%VARIANT%"}
+if [[ -z $VARIANT ]]; then
+  VARIANT=""
+  
+  FROM=${FROM:-"%NAME%:%VERSION%"}
+  DOCKERFILE_TEMPLATE="Dockerfile.template"
+else
+  FROM=${FROM:-"%NAME%:%VERSION%-%VARIANT%"}
+  DOCKERFILE_TEMPLATE="Dockerfile-$VARIANT.template"
+fi
 TEMPLATES=${TEMPLATES:-"pre,$TYPE,template,post"}
 
 pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
@@ -32,7 +40,7 @@ for version in ${VERSIONS//,/ }; do
     if [ $template == 'template' ]; then
       cat ../Dockerfile.template >> $dockerfile
     else
-      cat templates/docker/$template-$VARIANT.template >> $dockerfile
+      cat templates/docker/$VARIANT/$template.template >> $dockerfile
     fi
     echo -e "\n# </$template>" >> $dockerfile
   done
@@ -64,7 +72,7 @@ sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s;%VERSION%;\${versions[i]};g" \
     -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
     -e "s;%TYPE%;$TYPE;g" \
-    -e "s;%VARIANT%;$VARIANT;g" \
+    -e "s;%VARIANT%;-$VARIANT;g" \
     -e "s;%REPO%;$REPO;g" \
     -i ../Jenkinsfile
 popd >/dev/null

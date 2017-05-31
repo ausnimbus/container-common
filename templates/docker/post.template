@@ -1,0 +1,8 @@
+# Standardize on UID 100
+RUN usermod -o -u 100 default
+
+# Drop the root user and make the content of /opt/app-root owned by user default
+RUN chown -R 100:0 /opt/app-root && chmod -R ug+rwx /opt/app-root
+USER 100
+
+ENTRYPOINT ["container-entrypoint"]
