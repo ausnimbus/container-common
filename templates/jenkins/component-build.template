@@ -72,7 +72,7 @@ openshift.withCluster() {
                                                         "dockerfilePath" : "versions/%VERSION%/Dockerfile",
                                                         "from" : [
                                                                 "kind" : "ImageStreamTag",
-                                                                "name" : "%FROM%"
+                                                                "name" : "%NAME%:%VERSION%-%VARIANT%"
                                                         ]
                                                 ],
                                                 "type" : "Docker"
