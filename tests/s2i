@@ -18,7 +18,7 @@ source $(readlink -zf $(dirname "${BASH_SOURCE[0]}"))/functions
 
 run_s2i_build() {
   info "Building the ${1} application image..."
-  s2i build --rm ${S2I_ARGS} file://${test_dir}/${1} ${IMAGE_NAME} ${IMAGE_NAME}-testapp
+  s2i build --rm ${S2I_ARGS} -c file://${test_dir}/${1} ${IMAGE_NAME} ${IMAGE_NAME}-testapp
 }
 
 prepare_app() {
@@ -26,15 +26,6 @@ prepare_app() {
     echo "ERROR: The image ${IMAGE_NAME} must exist before this script is executed."
     exit 1
   fi
-  # TODO: S2I build require the application is a valid 'GIT' repository, we
-  # should remove this restriction in the future when a file:// is used.
-  info "Preparing to test ${1} ..."
-  pushd ${test_dir}/${1} >/dev/null
-  git init
-  git config user.email "build@localhost" && git config user.name "builder"
-  git add -A
-  git diff --quiet --exit-code --cached || git commit -m 'sample commit'
-  popd >/dev/null
 }
 
 run_test_app() {
