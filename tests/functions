@@ -64,9 +64,6 @@ cleanup_app () {
   if container_inspect ${IMAGE_NAME}-testapp; then
     docker rmi -f ${IMAGE_NAME}-testapp
   fi
-  if [ -f ${test_dir}/${1}/.git ]; then
-    rm -rf ${test_dir}/${1}/.git
-  fi
   set -e
 }
 

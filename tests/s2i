@@ -131,5 +131,5 @@ for app in ${TEST_APPS[@]}; do
   fi
 
   info "All tests for the ${app} finished successfully."
-  cleanup_app ${app}
+  cleanup_app
 done
