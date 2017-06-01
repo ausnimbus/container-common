@@ -38,7 +38,7 @@ prepare_app() {
 }
 
 run_test_app() {
-  CONTAINER_ARGS=${CONTAINER_ARGS:-'--user=100'}
+  CONTAINER_ARGS=${CONTAINER_ARGS:-'--user=100001'}
   docker run ${CONTAINER_ARGS} -d --cidfile=${cid_file} ${IMAGE_NAME}-testapp > /dev/null 2>&1
 }
 
