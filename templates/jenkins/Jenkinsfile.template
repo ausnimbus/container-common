@@ -6,10 +6,11 @@ node {
                 for (int i = 0; i < versions.length; i++) {
 
                   if (variants[v] == "default") {
-                    def variant[v] = ""
-                    def tag = versions[i]
+                    variant = ""
+                    tag = versions[i]
                   } else {
-                    def tag = versions[i] + "-" + variants[v]
+                    variant = variants[v]
+                    tag = versions[i] + "-" + variant
                   }
 
 
