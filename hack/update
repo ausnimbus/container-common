@@ -6,53 +6,60 @@
 # The following ENV variables are expected to be included:
 #
 #   - $VERSIONS (comma seperated versions to generate)
-#   - $FROM (overwrides the FROM layout defaults to %NAME%:%VERSION%%VARIANT%)
+#   - $FROM (overwrides the FROM layout defaults to %NAME%:%VERSION%%variant%)
 #   - $TYPE (s2i or component)
-#   - $VARIANT (eg. -alpine or "")
+#   - $VARIANTS (eg. default,alpine)
 #   - $REPO (eg. redis-component defaults to $TYPE-$NAME)
 #
 
-if [[ -z $VARIANT ]]; then
-  VARIANT=""
-  
-  FROM=${FROM:-"%NAME%:%VERSION%"}
-  DOCKERFILE_TEMPLATE="Dockerfile.template"
-else
-  FROM=${FROM:-"%NAME%:%VERSION%-%VARIANT%"}
-  DOCKERFILE_TEMPLATE="Dockerfile-$VARIANT.template"
-fi
+FROM=${FROM:-"%NAME%"}
 TEMPLATES=${TEMPLATES:-"pre,$TYPE,template,post"}
 
 pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
 cd ..
 
-# Dockerfile template
-for version in ${VERSIONS//,/ }; do
+for variant in ${VARIANTS//,/ }; do
 
-  dockerfile=../versions/$version/Dockerfile
+  # Set default variant rules
+  if [ $variant == "default" ]; then
+    variant=""
+    tag="%VERSION%"
+    DOCKERFILE_TEMPLATE="Dockerfile.template"
+  else
+    tag="%VERSION%-$variant"
+    DOCKERFILE_TEMPLATE="Dockerfile-$variant.template"
+  fi
 
-  echo -e '#\n# NOTE: THIS DOCKERFILE IS GENERATED VIA "./hack/run update"\n#\n# DO NOT EDIT IT DIRECTLY.\n#' > $dockerfile
-  echo -e "FROM %FROM%" >> $dockerfile
+  # Generate our versions
+  for version in ${VERSIONS//,/ }; do
+    mkdir -p ../versions/$version/$variant/
 
-  # Loop through the templates
-  for template in ${TEMPLATES//,/ }; do
-    echo -e "# <$template>\n" >> $dockerfile
-    if [ $template == 'template' ]; then
-      cat ../Dockerfile.template >> $dockerfile
-    else
-      cat templates/docker/$VARIANT/$template.template >> $dockerfile
-    fi
-    echo -e "\n# </$template>" >> $dockerfile
+    # Dockerfile template
+    dockerfile=../versions/$version/$variant/Dockerfile
+    echo -e '#\n# NOTE: THIS DOCKERFILE IS GENERATED VIA "./hack/run update"\n#\n# DO NOT EDIT IT DIRECTLY.\n#' > $dockerfile
+    echo -e "FROM %FROM%:$tag" >> $dockerfile
+
+    # Loop through the templates
+    for template in ${TEMPLATES//,/ }; do
+      echo -e "# <$template>\n" >> $dockerfile
+      if [ $template == 'template' ]; then
+        cat ../Dockerfile.template >> $dockerfile
+      else
+        cat templates/docker/$variant/$template.template >> $dockerfile
+      fi
+      echo -e "\n# </$template>" >> $dockerfile
+    done
+
+    sed -e "s;%FROM%;$FROM;g" \
+        -e "s;%NAME%;$NAME;g" \
+        -e "s;%VERSION%;$version;g" \
+        -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
+        -e "s;%TYPE%;$TYPE;g" \
+        -e "s;%variant%;$variant;g" \
+        -e "s;%REPO%;$REPO;g" \
+        -i $dockerfile
   done
 
-  sed -e "s;%FROM%;$FROM;g" \
-      -e "s;%NAME%;$NAME;g" \
-      -e "s;%VERSION%;$version;g" \
-      -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
-      -e "s;%TYPE%;$TYPE;g" \
-      -e "s;%VARIANT%;$VARIANT;g" \
-      -e "s;%REPO%;$REPO;g" \
-      -i $dockerfile
 done
 
 # Jenkinsfile template
@@ -69,10 +76,9 @@ sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s;%FROM%;$FROM;g" \
     -e "s;%NAME%;$NAME;g" \
     -e "s;%VERSIONS%;$VERSIONS;g" \
-    -e "s;%VERSION%;\${versions[i]};g" \
     -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
     -e "s;%TYPE%;$TYPE;g" \
-    -e "s;%VARIANT%;-$VARIANT;g" \
+    -e "s;%VARIANTS%;$VARIANTS;g" \
     -e "s;%REPO%;$REPO;g" \
     -i ../Jenkinsfile
 popd >/dev/null

@@ -14,10 +14,10 @@ openshift.withCluster() {
                                                 "spec" : [
                                                         "tags" : [
                                                                 [
-                                                                        "name" : "%VERSION%%VARIANT%",
+                                                                        "name" : "${tag}",
                                                                         "from" : [
                                                                                 "kind" : "DockerImage",
-                                                                                "name" : "%FROM%",
+                                                                                "name" : "%FROM%:${tag}",
                                                                         ],
                                                                         "referencePolicy" : [
                                                                                 "type" : "Source"
@@ -43,7 +43,7 @@ openshift.withCluster() {
                                 "apiVersion" : "v1",
                                 "kind" : "BuildConfig",
                                 "metadata" : [
-                                        "name" : "%REPO%-%VERSION%",
+                                        "name" : "%REPO%-${tag}",
                                         "labels" : [
                                                 "builder" : "%REPO%"
                                         ]
@@ -52,7 +52,7 @@ openshift.withCluster() {
                                         "output" : [
                                                 "to" : [
                                                         "kind" : "ImageStreamTag",
-                                                        "name" : "%REPO%:%VERSION%%VARIANT%"
+                                                        "name" : "%REPO%:${tag}"
                                                 ]
                                         ],
                                         "runPolicy" : "Serial",
@@ -69,27 +69,27 @@ openshift.withCluster() {
                                         ],
                                         "strategy" : [
                                                 "dockerStrategy" : [
-                                                        "dockerfilePath" : "versions/%VERSION%/Dockerfile",
+                                                        "dockerfilePath" : "versions/${versions[i]}/${variant[v]}/Dockerfile",
                                                         "from" : [
                                                                 "kind" : "ImageStreamTag",
-                                                                "name" : "%NAME%:%VERSION%%VARIANT%"
+                                                                "name" : "%NAME%:${tag}"
                                                         ]
                                                 ],
                                                 "type" : "Docker"
                                         ]
                                 ]
                         ])
-        echo "Created %REPO%:%VERSION% objects"
+        echo "Created %REPO%:${tag} objects"
         /**
         * TODO: Replace the sleep with import-image
-        * openshift.importImage("%NAME%:%VERSION%%VARIANT%")
+        * openshift.importImage("%NAME%:${tag}")
         */
         sleep 60
 
         echo "==============================="
-        echo "Starting build %REPO%-%VERSION%"
+        echo "Starting build %REPO%-${tag}"
         echo "==============================="
-        def builds = openshift.startBuild("%REPO%-%VERSION%");
+        def builds = openshift.startBuild("%REPO%-${tag}");
 
         timeout(10) {
                 builds.untilEach(1) {

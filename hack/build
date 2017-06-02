@@ -10,22 +10,32 @@
 
 pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
 cd ..
-for version in ${VERSIONS//,/ }
-do
-  image=ausnimbus/$REPO:$version
 
-  docker build -t $image ../ -f ../versions/$version/Dockerfile
-  #docker-squash -t $image $image
-  IMAGE_NAME=$image VERSION=$version ../test/run
+for variant in ${VARIANTS//,/ }; do
+  for version in ${VERSIONS//,/ }
+  do
+
+    if [ $variant == "default" ]; then
+      image=ausnimbus/$REPO:$version
+      docker build -t $image ../ -f ../versions/$version/Dockerfile
+    else
+      image=ausnimbus/$REPO:$version-$variant
+      docker build -t $image ../ -f ../versions/$version/$variant/Dockerfile
+    fi
+
+    #docker-squash -t $image $image
+    IMAGE_NAME=$image VERSION=$version ../test/run
+
+    if [ $DOCKER_PUSH == "true" ]; then
+      docker tag $image quay.io/$image
+      docker push quay.io/$image
+    fi
+  done
 
   if [ $DOCKER_PUSH == "true" ]; then
-    docker tag $image quay.io/$image
-    docker push quay.io/$image
+    docker tag $image quay.io/ausnimbus/$REPO:latest
+    docker push quay.io/ausnimbus/$REPO:latest
   fi
 done
 
-if [ $DOCKER_PUSH == "true" ]; then
-  docker tag $image quay.io/ausnimbus/$REPO:latest
-  docker push quay.io/ausnimbus/$REPO:latest
-fi
 popd >/dev/null
