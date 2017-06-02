@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # This builds (docker build) and test the Docker images
 # for various containers used within AusNimbus
