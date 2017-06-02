@@ -5,7 +5,8 @@ LABEL summary="Platform for running %DISPLAY_NAME% %VERSION% applications" \
       io.k8s.description="Platform for running %DISPLAY_NAME% %VERSION% applications" \
       io.k8s.display-name="%DISPLAY_NAME% %VERSION%"
 
-ENV HOME=/opt/app-root/src
+ENV USER=999 \
+    HOME=/opt/app-root/src
 
 USER 0
 
