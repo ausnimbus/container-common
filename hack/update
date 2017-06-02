@@ -43,7 +43,7 @@ for variant in ${VARIANTS//,/ }; do
     for template in ${TEMPLATES//,/ }; do
       echo -e "# <$template>\n" >> $dockerfile
       if [ $template == 'template' ]; then
-        cat ../Dockerfile.template >> $dockerfile
+        cat ../$DOCKERFILE_TEMPLATE >> $dockerfile
       else
         cat templates/docker/$variant/$template.template >> $dockerfile
       fi
