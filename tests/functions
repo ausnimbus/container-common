@@ -39,12 +39,14 @@ container_cleanup() {
       docker stop $(cat $cid_file)
 
       #if [ $(docker inspect -f '{{.State.ExitCode}}' $CONTAINER) != "0" ]; then
-      if [[ -n $1 && $1 != 0 ]]; then
-        info "Inspecting container $CONTAINER"
-        container_inspect $CONTAINER
+      if [ -n "$1" ]; then
+        if  [ "$1" != 0 ]; then
+          info "Inspecting container $CONTAINER"
+          container_inspect $CONTAINER
 
-        info "Dumping logs for $CONTAINER"
-        docker logs $CONTAINER
+          info "Dumping logs for $CONTAINER"
+          docker logs $CONTAINER
+        fi
       fi
       docker rm -v $CONTAINER &>/dev/null
     else
