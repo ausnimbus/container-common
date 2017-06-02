@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # This builds (docker build) and test the Docker images
 # for various containers used within AusNimbus
@@ -24,7 +24,7 @@ for variant in ${VARIANTS//,/ }; do
     fi
 
     #docker-squash -t $image $image
-    IMAGE_NAME=$image VERSION=$version ../test/run
+    IMAGE_NAME=$image VERSION=$version VARIANT=$variant ../test/run
 
     if [ $DOCKER_PUSH == "true" ]; then
       docker tag $image quay.io/$image

@@ -3,8 +3,6 @@
 set -o errexit
 shopt -s nullglob
 
-[ "${DEBUG:-0}" -eq 1 ] && set -x
-
 CIDFILE_DIR=$(mktemp --suffix=test_cid_files -d)
 
 function cleanup() {
@@ -40,7 +38,7 @@ container_cleanup() {
       info "Stopping container $CONTAINER..."
       docker stop $(cat $cid_file)
 
-      if [ $(docker inspect -f '{{.State.ExitCode}}' $CONTAINER) != "0" ]; then
+      if [ $(docker inspect -f '{{.State.ExitCode}}' $CONTAINER) == "1" ]; then
         info "Inspecting container $CONTAINER"
         container_inspect $CONTAINER
 
