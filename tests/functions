@@ -9,7 +9,7 @@ function cleanup() {
   info "Tests finished.. cleaning up.."
 
   for cidfile in $CIDFILE_DIR/* ; do
-    container_cleanup
+    container_cleanup $1
   done
   rmdir $CIDFILE_DIR
 
@@ -38,7 +38,8 @@ container_cleanup() {
       info "Stopping container $CONTAINER..."
       docker stop $(cat $cid_file)
 
-      if [ $(docker inspect -f '{{.State.ExitCode}}' $CONTAINER) == "1" ]; then
+      #if [ $(docker inspect -f '{{.State.ExitCode}}' $CONTAINER) != "0" ]; then
+      if [[ -n $1 && $1 != 0 ]]; then
         info "Inspecting container $CONTAINER"
         container_inspect $CONTAINER
 

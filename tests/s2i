@@ -70,7 +70,7 @@ test_connection() {
 test_ab() {
   info "Running Apache Benchmark (http://$(container_ip):$(container_port)) ${CONTAINER_ARGS} ..."
 
-  local ab_requests="1500"
+  local ab_requests="100"
   local ab_params="-k -n ${ab_requests} -c 32 -l"
 
   out=$(docker run --rm quay.io/ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/)
@@ -88,7 +88,7 @@ test_application() {
   wait_for_cid
 
   info "Testing container version"
-#  test_container_command "${VERSION_COMMAND}" "${VERSION}"
+  test_container_command "${VERSION_COMMAND}" "${VERSION}"
 
   test_connection
   test_ab
