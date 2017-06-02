@@ -17,7 +17,7 @@ source $(readlink -zf $(dirname "${BASH_SOURCE[0]}"))/functions
 
 run_s2i_build() {
   info "Building the ${1} application image..."
-  s2i build --rm ${S2I_ARGS} -c file://${test_dir}/${1} ${IMAGE_NAME} ${IMAGE_NAME}-testapp
+  s2i build ${S2I_ARGS} -c file://${test_dir}/${1} ${IMAGE_NAME} ${IMAGE_NAME}-testapp
 }
 
 prepare_app() {
@@ -119,10 +119,15 @@ for app in ${TEST_APPS[@]}; do
   # Build the application image twice to ensure the 'save-artifacts' and
   # 'restore-artifacts' scripts are working properly
   info "${app}: Test incremental builds (build #1)"
-  S2I_ARGS="--incremental" run_s2i_build ${app}
+  S2I_ARGS="--incremental --rm" run_s2i_build ${app}
   info "${app}: Test incremental builds (build #2)"
-  S2I_ARGS="--incremental" run_s2i_build ${app}
+  S2I_ARGS="--incremental --rm" run_s2i_build ${app}
   test_application
+  cleanup_app
+
+  info "${app}: Test with DEBUG=TRUE"
+  S2I_ARGS="-e DEBUG=TRUE" run_s2i_build ${app}
+  CONTAINER_ARGS='-e DEBUG=TRUE --user=100001' test_application
   cleanup_app
 
   # Extra tests
