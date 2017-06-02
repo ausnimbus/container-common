@@ -39,14 +39,12 @@ container_cleanup() {
       docker stop $(cat $cid_file)
 
       #if [ $(docker inspect -f '{{.State.ExitCode}}' $CONTAINER) != "0" ]; then
-      if [ -n "$1" ]; then
-        if  [ "$1" != 0 ]; then
-          info "Inspecting container $CONTAINER"
-          container_inspect $CONTAINER
+      if [ ! -z "$1" -a "$1" != 0 ]; then
+        info "Inspecting container $CONTAINER"
+        container_inspect $CONTAINER
 
-          info "Dumping logs for $CONTAINER"
-          docker logs $CONTAINER
-        fi
+        info "Dumping logs for $CONTAINER"
+        docker logs $CONTAINER
       fi
       docker rm -v $CONTAINER &>/dev/null
     else
@@ -62,7 +60,7 @@ container_cleanup() {
 cleanup_app () {
   set +e
   info "Cleaning up the test application image"
-  if container_inspect ${IMAGE_NAME}-testapp; then
+  if container_exists ${IMAGE_NAME}-testapp; then
     docker rmi -f ${IMAGE_NAME}-testapp
   fi
   set -e
