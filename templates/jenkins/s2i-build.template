@@ -97,4 +97,5 @@ openshift.withCluster() {
                 }
         }
         echo "Finished build ${builds.names()}"
+        builds.logs()
 }
