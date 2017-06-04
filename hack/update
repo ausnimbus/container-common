@@ -82,6 +82,7 @@ sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
     -e "s;%TYPE%;$TYPE;g" \
     -e "s;%VARIANTS%;$VARIANTS;g" \
+    -e "s;%VARIANT%;\${variant};g" \
     -e "s;%REPO%;$REPO;g" \
     -i ../Jenkinsfile
 popd >/dev/null
