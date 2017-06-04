@@ -91,7 +91,7 @@ openshift.withCluster() {
         echo "==============================="
         def builds = openshift.startBuild("%REPO%-${tag}");
 
-        timeout(10) {
+        timeout(20) {
                 builds.untilEach(1) {
                         return it.object().status.phase == "Complete"
                 }
