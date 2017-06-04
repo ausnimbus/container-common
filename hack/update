@@ -78,6 +78,7 @@ sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s;%TAG%;\${tag};g" \
     -e "s;%NAME%;$NAME;g" \
     -e "s;%VERSIONS%;$VERSIONS;g" \
+    -e "s;%VERSION%;\${versions[i]};g" \
     -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
     -e "s;%TYPE%;$TYPE;g" \
     -e "s;%VARIANTS%;$VARIANTS;g" \
