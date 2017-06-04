@@ -56,7 +56,7 @@ for variant in ${VARIANTS//,/ }; do
         -e "s;%VERSION%;$version;g" \
         -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
         -e "s;%TYPE%;$TYPE;g" \
-        -e "s;%variant%;$variant;g" \
+        -e "s;%VARIANT%;$variant;g" \
         -e "s;%REPO%;$REPO;g" \
         -i $dockerfile
   done
