@@ -12,7 +12,7 @@
 #   - $REPO (eg. redis-component defaults to $TYPE-$NAME)
 #
 
-FROM=${FROM:-"%NAME%"}
+FROM=${FROM:-"%NAME%:%TAG%"}
 TEMPLATES=${TEMPLATES:-"pre,$TYPE,template,post"}
 
 pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
@@ -37,7 +37,7 @@ for variant in ${VARIANTS//,/ }; do
     # Dockerfile template
     dockerfile=../versions/$version/$variant/Dockerfile
     echo -e '#\n# NOTE: THIS DOCKERFILE IS GENERATED VIA "./hack/run update"\n#\n# DO NOT EDIT IT DIRECTLY.\n#' > $dockerfile
-    echo -e "FROM %FROM%:$tag" >> $dockerfile
+    echo -e "FROM %FROM%" >> $dockerfile
 
     # Loop through the templates
     for template in ${TEMPLATES//,/ }; do
@@ -51,6 +51,7 @@ for variant in ${VARIANTS//,/ }; do
     done
 
     sed -e "s;%FROM%;$FROM;g" \
+        -e "s;%TAG%;$tag;g" \
         -e "s;%NAME%;$NAME;g" \
         -e "s;%VERSION%;$version;g" \
         -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \
@@ -74,6 +75,7 @@ sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s|%TEST%|${jenkins_test}|g" \
     -e "s|%STAGE%|${jenkins_stage}|g" \
     -e "s;%FROM%;$FROM;g" \
+    -e "s;%TAG%;\${tag};g" \
     -e "s;%NAME%;$NAME;g" \
     -e "s;%VERSIONS%;$VERSIONS;g" \
     -e "s;%DISPLAY_NAME%;$DISPLAY_NAME;g" \

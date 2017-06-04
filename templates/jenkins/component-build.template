@@ -17,7 +17,7 @@ openshift.withCluster() {
                                                                         "name" : "${tag}",
                                                                         "from" : [
                                                                                 "kind" : "DockerImage",
-                                                                                "name" : "%FROM%:${tag}",
+                                                                                "name" : "%FROM%",
                                                                         ],
                                                                         "referencePolicy" : [
                                                                                 "type" : "Source"
