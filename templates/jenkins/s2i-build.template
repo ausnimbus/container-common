@@ -58,7 +58,7 @@ openshift.withCluster() {
                                         "runPolicy" : "Serial",
                                         "resources" : [
                                             "limits" : [
-                                                "memory" : "2Gi"
+                                                "memory" : "2.5Gi"
                                             ]
                                         ],
                                         "source" : [
@@ -91,7 +91,7 @@ openshift.withCluster() {
         echo "==============================="
         def builds = openshift.startBuild("%REPO%-${tag}");
 
-        timeout(20) {
+        timeout(60) {
                 builds.untilEach(1) {
                         return it.object().status.phase == "Complete"
                 }
