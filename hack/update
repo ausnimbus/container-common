@@ -13,6 +13,7 @@
 #
 
 FROM=${FROM:-"%NAME%:%TAG%"}
+TAG=${TAG:-"%VERSION%"}
 TEMPLATES=${TEMPLATES:-"pre,$TYPE,template,post"}
 
 pushd $(readlink -zf $(dirname "${BASH_SOURCE[0]}")) >/dev/null
@@ -20,14 +21,14 @@ cd ..
 
 for variant in ${VARIANTS//,/ }; do
 
-  # Set default variant rules
+  # Set default variant rules (this logic is replicated in the Jenkinsfile.template)
   if [ $variant == "default" ]; then
+    tag=$TAG
     variant=""
-    tag="%VERSION%"
-    DOCKERFILE_TEMPLATE="Dockerfile.template"
+    dockerfile_template="Dockerfile.template"
   else
-    tag="%VERSION%-$variant"
-    DOCKERFILE_TEMPLATE="Dockerfile-$variant.template"
+    tag="$TAG-$variant"
+    dockerfile_template="Dockerfile-$variant.template"
   fi
 
   # Generate our versions
@@ -43,7 +44,7 @@ for variant in ${VARIANTS//,/ }; do
     for template in ${TEMPLATES//,/ }; do
       echo -e "# <$template>\n" >> $dockerfile
       if [ $template == 'template' ]; then
-        cat ../$DOCKERFILE_TEMPLATE >> $dockerfile
+        cat ../$dockerfile_template >> $dockerfile
       else
         cat templates/docker/$variant/$template.template >> $dockerfile
       fi
@@ -75,7 +76,7 @@ sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s|%TEST%|${jenkins_test}|g" \
     -e "s|%STAGE%|${jenkins_stage}|g" \
     -e "s;%FROM%;$FROM;g" \
-    -e "s;%TAG%;\${tag};g" \
+    -e "s;%TAG%;$TAG;g" \
     -e "s;%NAME%;$NAME;g" \
     -e "s;%VERSIONS%;$VERSIONS;g" \
     -e "s;%VERSION%;\${versions[i]};g" \
