@@ -1,5 +1,5 @@
 node {
-        def variants = "%VARIANTS%".split(',');
+        def variants = System.getenv("VARIANTS") ?: "%VARIANTS%".split(',');
         for (int v = 0; v < variants.length; v++) {
 
                 def versions = "%VERSIONS%".split(',');
