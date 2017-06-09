@@ -71,12 +71,13 @@ jenkins_stage=$(awk '{printf "%s\\n", $0}' templates/jenkins/$TYPE-stage.templat
 echo -e '/**\n* NOTE: THIS JENKINSFILE IS GENERATED VIA "./hack/run update"\n*\n* DO NOT EDIT IT DIRECTLY.\n*/' > ../Jenkinsfile
 cat templates/jenkins/Jenkinsfile.template >> ../Jenkinsfile
 
-# ${version[i]} is an internal Jenkinsfile loop
+# ${version[i]} and ${tag} are internal Jenkinsfile variables
 sed -e "s|%BUILD%|${jenkins_build}|g" \
     -e "s|%TEST%|${jenkins_test}|g" \
     -e "s|%STAGE%|${jenkins_stage}|g" \
     -e "s;%FROM%;$FROM;g" \
-    -e "s;%TAG%;$TAG;g" \
+    -e "s;%TAG%;\${tag};g" \
+    -e "s;%tag%;$TAG;g" \
     -e "s;%NAME%;$NAME;g" \
     -e "s;%VERSIONS%;$VERSIONS;g" \
     -e "s;%VERSION%;\${versions[i]};g" \

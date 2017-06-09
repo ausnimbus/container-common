@@ -7,10 +7,10 @@ node {
 
                   if (variants[v] == "default") {
                     variant = ""
-                    tag = "%TAG%"
+                    tag = "%tag%"
                   } else {
                     variant = variants[v]
-                    tag = "%TAG%-${variant}"
+                    tag = "%tag%-${variant}"
                   }
 
 
