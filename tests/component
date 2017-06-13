@@ -13,7 +13,7 @@ test_port() {
   info "Checking the container port $(container_ip) $(container_port) is open.."
   set +e
   local max_attempts=30
-  local sleep_time=1
+  local sleep_time=15
   local attempt=1
   local result=1
   while [ $attempt -le $max_attempts ]; do
