@@ -3,7 +3,7 @@ openshift.withCluster() {
         echo "Starting test application"
         echo "==============================="
 
-        def testApp = openshift.newApp("https://github.com/ausnimbus/%NAME%-ex", "--image-stream=%REPO%:${tag}", "-l app=%NAME%-ex");
+        def testApp = openshift.newApp("%REPO%:${tag}~https://github.com/ausnimbus/%NAME%-ex", "-l app=%NAME%-ex");
         echo "new-app created ${testApp.count()} objects named: ${testApp.names()}"
         testApp.describe()
 
