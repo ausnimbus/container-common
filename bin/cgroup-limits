@@ -15,9 +15,9 @@
 #         /sys/fs/cgroup/memory/memory.limit_in_bytes
 #
 #         Fallback: physical memory (arbitary high value)
-#     NUMBER_OF_CORES
+#     CPU_CORES
 #         Number of detected CPU cores that can be used. This value is
-#         calculated from /sys/fs/cgroup/cpuset/cpuset.cpus
+#         calculated `nproc --all`
 
 PHYSICAL_MEMORY_LIMIT_IN_BYTES=$(free -b | awk 'NR==2{print$2}')
 if [ -f /sys/fs/cgroup/memory/memory.limit_in_bytes ]; then
@@ -33,8 +33,4 @@ fi
 # Set a memory limit in MB
 export MEMORY_LIMIT=$((MEMORY_LIMIT_IN_BYTES/1024/1024))
 
-if [ -f /sys/fs/cgroup/cpuset/cpuset.cpus ]; then
-  export NUMBER_OF_CORES=$(cat /sys/fs/cgroup/cpuset/cpuset.cpus)
-else
-  export NUMBER_OF_CORES=1
-fi
+export CPU_CORES=$(nproc --all)
