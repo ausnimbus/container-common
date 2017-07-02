@@ -16,8 +16,8 @@
 #
 #         Fallback: physical memory (arbitary high value)
 #     CPU_CORES
-#         Number of detected CPU cores that can be used. This value is
-#         calculated `nproc --all`
+#         Number of detected CPU cores that can be used. This value is taken from
+#          `grep -c ^processor /proc/cpuinfo`
 
 PHYSICAL_MEMORY_LIMIT_IN_BYTES=$(free -b | awk 'NR==2{print$2}')
 if [ -f /sys/fs/cgroup/memory/memory.limit_in_bytes ]; then
@@ -33,4 +33,5 @@ fi
 # Set a memory limit in MB
 export MEMORY_LIMIT=$((MEMORY_LIMIT_IN_BYTES/1024/1024))
 
-export CPU_CORES=$(nproc --all)
+# CPU Count
+export CPU_CORES=$(grep -c ^processor /proc/cpuinfo)
