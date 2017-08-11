@@ -73,7 +73,7 @@ test_ab() {
   local ab_requests=${AB_REQUESTS:-"100"}
   local ab_params=${AB_PARAMS:-"-k -n ${ab_requests} -c 32 -l"}
 
-  out=$(docker run --rm quay.io/ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/)
+  out=$(docker run --rm ausnimbus/ab ab $ab_params http://$(container_ip):$(container_port)/)
   echo $out
 
   return $(echo $out | grep "Complete requests:" | grep -q $ab_requests)
